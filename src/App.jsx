@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import DocumentsPage from './pages/DocumentsPage'
 import ExtractionPage from './pages/ExtractionPage'
 import EmbeddingPage from './pages/EmbeddingPage'
+import ComparisonPage from './pages/ComparisonPage'
 import './App.css'
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/extraction" element={<ExtractionPage />} />
           <Route path="/embedding" element={<EmbeddingPage />} />
+          <Route path="/comparison" element={<ComparisonPage />} />
         </Routes>
       </Layout>
     </Router>
