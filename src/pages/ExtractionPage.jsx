@@ -68,10 +68,14 @@ const ExtractionPage = () => {
           throw new Error('Unknown extraction type')
       }
       
+      // Debug log to help troubleshoot
+      console.log(`[${type}] API Response:`, data)
+      
       setExtractionData(data)
       setActiveTab(type)
       toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} extracted successfully!`, { id: loadingToast })
     } catch (error) {
+      console.error(`[${type}] Error:`, error)
       toast.error(error.response?.data?.detail || `Failed to extract ${type}`, { id: loadingToast })
       console.error(error)
     } finally {
@@ -108,6 +112,12 @@ const ExtractionPage = () => {
   const renderSummary = () => {
     if (!extractionData) return null
     
+    // Extract stats from the API response structure
+    const totalPages = extractionData.metadata?.total_pages || 0
+    const totalSections = extractionData.content_summary?.total_sections || 0
+    const totalTables = extractionData.content_summary?.total_tables || 0
+    const totalImages = extractionData.content_summary?.total_images || 0
+    
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -116,7 +126,7 @@ const ExtractionPage = () => {
               <div>
                 <p className="text-sm text-blue-600 font-medium">Total Pages</p>
                 <p className="text-3xl font-bold text-blue-900 mt-1">
-                  {extractionData.summary?.total_pages || 0}
+                  {totalPages}
                 </p>
               </div>
               <FileText className="w-8 h-8 text-blue-600 opacity-50" />
@@ -128,7 +138,7 @@ const ExtractionPage = () => {
               <div>
                 <p className="text-sm text-green-600 font-medium">Sections</p>
                 <p className="text-3xl font-bold text-green-900 mt-1">
-                  {extractionData.summary?.total_sections || 0}
+                  {totalSections}
                 </p>
               </div>
               <Database className="w-8 h-8 text-green-600 opacity-50" />
@@ -140,13 +150,27 @@ const ExtractionPage = () => {
               <div>
                 <p className="text-sm text-purple-600 font-medium">Tables</p>
                 <p className="text-3xl font-bold text-purple-900 mt-1">
-                  {extractionData.summary?.total_tables || 0}
+                  {totalTables}
                 </p>
               </div>
               <Table className="w-8 h-8 text-purple-600 opacity-50" />
             </div>
           </div>
         </div>
+
+        {/* Additional stats if available */}
+        {totalImages > 0 && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-orange-600 font-medium">Images</p>
+                <p className="text-3xl font-bold text-orange-900 mt-1">
+                  {totalImages}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="card">
           <h3 className="font-semibold text-gray-900 mb-3">Document Metadata</h3>
@@ -159,23 +183,40 @@ const ExtractionPage = () => {
                 </code>
               </dd>
             </div>
-            {extractionData.extraction_date && (
+            {extractionData.extraction_timestamp && (
               <div>
                 <dt className="font-medium text-gray-600">Extracted:</dt>
                 <dd className="mt-1 text-gray-900">
-                  {new Date(extractionData.extraction_date).toLocaleString()}
+                  {new Date(extractionData.extraction_timestamp).toLocaleString()}
                 </dd>
+              </div>
+            )}
+            {extractionData.cached !== undefined && (
+              <div>
+                <dt className="font-medium text-gray-600">Cached:</dt>
+                <dd className="mt-1">
+                  <span className={`badge ${extractionData.cached ? 'badge-success' : 'badge-info'}`}>
+                    {extractionData.cached ? 'Yes (from cache)' : 'No (fresh extraction)'}
+                  </span>
+                </dd>
+              </div>
+            )}
+            {extractionData.metadata?.pdf_version && (
+              <div>
+                <dt className="font-medium text-gray-600">PDF Version:</dt>
+                <dd className="mt-1 text-gray-900">{extractionData.metadata.pdf_version}</dd>
               </div>
             )}
           </dl>
         </div>
 
-        {extractionData.summary?.section_hierarchy && (
+        {/* Show full content_summary if available */}
+        {extractionData.content_summary && Object.keys(extractionData.content_summary).length > 0 && (
           <div className="card">
-            <h3 className="font-semibold text-gray-900 mb-3">Section Hierarchy Preview</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">Content Summary</h3>
             <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-auto">
               <pre className="text-sm text-gray-800">
-                {JSON.stringify(extractionData.summary.section_hierarchy, null, 2)}
+                {JSON.stringify(extractionData.content_summary, null, 2)}
               </pre>
             </div>
           </div>
@@ -185,34 +226,40 @@ const ExtractionPage = () => {
   }
 
   const renderPages = () => {
-    if (!extractionData?.pages) return null
+    if (!extractionData?.extracted_pages) return null
 
     return (
       <div className="space-y-4">
-        {extractionData.pages.map((page, idx) => (
+        {extractionData.extracted_pages.map((page, idx) => (
           <div key={idx} className="card">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-gray-900">
                 Page {page.page_number}
               </h3>
-              <span className="badge badge-info">
-                {page.segments?.length || 0} segments
-              </span>
+              <div className="flex items-center space-x-2">
+                {page.page_width && page.page_height && (
+                  <span className="text-xs text-gray-600">
+                    {Math.round(page.page_width)} × {Math.round(page.page_height)}
+                  </span>
+                )}
+                <span className="badge badge-info">
+                  {page.content?.length || 0} chars
+                </span>
+              </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-auto">
-              <div className="space-y-2">
-                {page.segments?.map((segment, segIdx) => (
-                  <div key={segIdx} className="text-sm text-gray-700">
-                    <span className="font-mono text-xs text-gray-500 mr-2">
-                      [{segment.type}]
-                    </span>
-                    {segment.text}
-                  </div>
-                ))}
+              <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                {page.content || 'No content available'}
               </div>
             </div>
           </div>
         ))}
+        
+        {extractionData.total_pages && (
+          <div className="text-center text-sm text-gray-600">
+            Showing {extractionData.extracted_pages.length} of {extractionData.total_pages} pages
+          </div>
+        )}
       </div>
     )
   }
@@ -257,21 +304,32 @@ const ExtractionPage = () => {
           <div key={idx} className="card">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-gray-900">
-                Table {idx + 1}
+                {table.title || `Table ${idx + 1}`}
               </h3>
               <div className="flex items-center space-x-2">
                 {table.page_number && (
                   <span className="badge badge-info">Page {table.page_number}</span>
                 )}
                 <span className="text-sm text-gray-600">
-                  {table.data?.length || 0} rows
+                  {table.rows?.length || 0} rows × {table.headers?.length || 0} cols
                 </span>
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="table">
+                {table.headers && table.headers.length > 0 && (
+                  <thead>
+                    <tr>
+                      {table.headers.map((header, headerIdx) => (
+                        <th key={headerIdx} className="text-sm font-semibold">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                )}
                 <tbody>
-                  {table.data?.slice(0, 10).map((row, rowIdx) => (
+                  {table.rows?.slice(0, 10).map((row, rowIdx) => (
                     <tr key={rowIdx}>
                       {row.map((cell, cellIdx) => (
                         <td key={cellIdx} className="text-sm">
@@ -282,14 +340,20 @@ const ExtractionPage = () => {
                   ))}
                 </tbody>
               </table>
-              {table.data?.length > 10 && (
+              {table.rows && table.rows.length > 10 && (
                 <p className="text-sm text-gray-600 text-center mt-2">
-                  ... and {table.data.length - 10} more rows
+                  ... and {table.rows.length - 10} more rows
                 </p>
               )}
             </div>
           </div>
         ))}
+        
+        {extractionData.total_tables !== undefined && (
+          <div className="text-center text-sm text-gray-600">
+            Showing {extractionData.tables.length} of {extractionData.total_tables} tables
+          </div>
+        )}
       </div>
     )
   }
