@@ -104,7 +104,7 @@ npm install
 
 ### 3. Configure API Endpoint (Optional)
 
-If your FastAPI backend is not on http://localhost:8000, create a `.env` file:
+If your FastAPI backend is not on http://localhost:8001, create a `.env` file:
 
 ```bash
 # frontend/.env
@@ -125,7 +125,7 @@ npm run dev
 ```bash
 cd /home/test1/vamshi
 # Activate your Python environment if needed
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn api.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 ### Terminal 2 - Frontend (React):
@@ -136,8 +136,8 @@ npm run dev
 
 Then access:
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
+- Backend API: http://localhost:8001
+- API Docs: http://localhost:8001/docs
 
 ---
 
@@ -171,8 +171,8 @@ npm run preview
 - Verify CORS allows `http://localhost:3000`
 
 ### "Network Error" or "Connection Refused"
-- Make sure FastAPI backend is running on port 8000
-- Check: `curl http://localhost:8000/docs`
+- Make sure FastAPI backend is running on port 8001
+- Check: `curl http://localhost:8001/docs`
 - Verify proxy configuration in `frontend/vite.config.js`
 
 ### Port 3000 Already in Use

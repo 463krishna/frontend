@@ -12,7 +12,7 @@
  * - doc1Id: ID of first document
  * - doc2Id: ID of second document
  * - mode: Comparison mode (page, section, table, string, all)
- * - apiBaseUrl: Base URL for API (default: http://localhost:8000)
+ * - apiBaseUrl: Base URL for API (default: http://localhost:8001)
  * - onComparisonComplete: Callback when comparison finishes
  */
 
@@ -25,7 +25,7 @@ const ComparisonViewer = ({
   doc1Id, 
   doc2Id, 
   mode = 'section',
-  apiBaseUrl = 'http://localhost:8000',
+  apiBaseUrl = 'http://localhost:8001',
   onComparisonComplete = null 
 }) => {
   const [comparisonData, setComparisonData] = useState(null);

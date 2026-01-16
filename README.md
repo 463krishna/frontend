@@ -13,7 +13,7 @@ A modern React application for managing documents and extracting content using F
 ## Prerequisites
 
 - Node.js 16+ and npm
-- FastAPI backend running on `http://localhost:8000`
+- FastAPI backend running on `http://localhost:8001`
 
 ## Installation
 
@@ -83,7 +83,7 @@ frontend/
 
 ## API Configuration
 
-The frontend is configured to proxy API requests to `http://localhost:8000`. If your backend is running on a different URL, update the `VITE_API_BASE_URL` in `.env`:
+The frontend is configured to proxy API requests to `http://localhost:8001`. If your backend is running on a different URL, update the `VITE_API_BASE_URL` in `.env`:
 
 ```bash
 VITE_API_BASE_URL=http://your-backend-url:port
@@ -141,7 +141,7 @@ To contribute or modify:
 
 **CORS Issues**: Make sure your FastAPI backend has CORS enabled for `http://localhost:3000`
 
-**API Connection**: Verify the backend is running on `http://localhost:8000`
+**API Connection**: Verify the backend is running on `http://localhost:8001`
 
 **Build Errors**: Clear `node_modules` and reinstall:
 ```bash

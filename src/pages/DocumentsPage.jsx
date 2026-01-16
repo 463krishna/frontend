@@ -229,8 +229,8 @@ const DocumentsPage = () => {
                         {doc.file_id}
                       </code>
                     </td>
-                    <td className="text-gray-600">{formatFileSize(doc.file_size)}</td>
-                    <td className="text-gray-600 text-sm">{formatDate(doc.upload_date)}</td>
+                    <td className="text-gray-600">{formatFileSize(doc.file_size_bytes)}</td>
+                    <td className="text-gray-600 text-sm">{formatDate(doc.upload_timestamp)}</td>
                     <td>
                       <span className="badge badge-success">Active</span>
                     </td>
@@ -290,11 +290,11 @@ const DocumentsPage = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">File Size</label>
-                  <p className="mt-1 text-gray-900">{formatFileSize(selectedDocument.file_size)}</p>
+                  <p className="mt-1 text-gray-900">{formatFileSize(selectedDocument.file_size_bytes)}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Upload Date</label>
-                  <p className="mt-1 text-gray-900">{formatDate(selectedDocument.upload_date)}</p>
+                  <p className="mt-1 text-gray-900">{formatDate(selectedDocument.upload_timestamp)}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">File Path</label>
